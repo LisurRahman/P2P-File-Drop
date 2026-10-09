@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P2P File Drop - Secure File Transfer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>P2P File Drop</h1>
+        <p class="subtitle">Secure, Private, Peer-to-Peer File Transfer. No servers, no tracking.</p>
+    </header>
+
+    <nav class="mode-selector">
+        <button class="mode-btn" onclick="app.setMode('send')">
+            <h3>📤 Send Files</h3>
+            <p>Create a connection and share the code.</p>
+        </button>
+        <button class="mode-btn" onclick="app.setMode('receive')">
+            <h3>📥 Receive Files</h3>
+            <p>Paste a code to accept files.</p>
+        </button>
+    </nav>
+
+    <!-- SEND PANEL -->
+    <div id="send-panel" class="panel">
+        <h2>Send Files</h2>
+        
+        <div id="send-step-1">
+            <div class="info-box">
+                Your files stay on your device. They are split into chunks and sent directly to the other browser.
+            </div>
+            
+            <input type="file" id="file-input" multiple style="display: none;" onchange="app.handleFileSelect(this)">
+            <button class="btn secondary" onclick="document.getElementById('file-input').click()">Choose Files</button>
+            
+            <ul id="selected-files" class="file-list"></ul>
+            <div id="file-summary" style="text-align: right; font-weight: bold; margin-bottom: 1rem;"></div>
+            
+            <button id="generate-offer-btn" class="btn" disabled onclick="app.generateOffer()">Generate Connection Code</button>
+        </div>
+
+        <div id="send-step-2" style="display:none;">
+            <span class="status-badge status-connecting">Waiting for connection</span>
+            <p>Copy the code below and send it to the receiver (via email, chat, etc.):</p>
+            
+            <div class="code-area">
+                <label>1. Sender's Offer Code:</label>
+                <textarea id="offer-code" readonly onclick="this.select()"></textarea>
+                <button class="btn secondary" onclick="app.copyToClipboard('offer-code')">Copy to Clipboard</button>
+            </div>
+            
+            <hr style="margin: 2rem 0; border: 0; border-top: 1px solid var(--border);">
+            
+            <div class="code-area">
+                <label>2. Paste Receiver's Answer Code below:</label>
+                <textarea id="answer-input" placeholder="Paste the code you received from the receiver here..."></textarea>
+                <button class="btn" onclick="app.processAnswer()">Connect & Start Transfer</button>
+            </div>
+        </div>
+
+        <div id="send-step-3" style="display:none;">
+            <span class="status-badge status-connected">Connected</span>
+            <h3>Transferring Files...</h3>
+            <div class="progress-container">
+                <div class="progress-bar-bg">
+                    <div id="send-progress" class="progress-bar-fill"></div>
+                </div>
+                <div class="progress-stats">
+                    <span id="send-status-text">Initializing...</span>
+                    <span id="send-speed">0 MB/s</span>
+                </div>
+            </div>
+            <button id="cancel-send-btn" class="btn danger" onclick="app.cancelTransfer()">Cancel Transfer</button>
+        </div>
+    </div>
+
+    <!-- RECEIVE PANEL -->
+    <div id="receive-panel" class="panel">
+        <h2>Receive Files</h2>
+        
+        <div id="receive-step-1">
+            <div class="code-area">
+                <label>Paste Sender's Code:</label>
+                <textarea id="offer-input" placeholder="Paste the code you received from the sender here..."></textarea>
+                <button class="btn" onclick="app.processOffer()">Generate Answer Code</button>
+            </div>
+        </div>
+
+        <div id="receive-step-2" style="display:none;">
+            <span class="status-badge status-waiting">Ready to Receive</span>
+            <p>Copy this code and send it back to the sender:</p>
+            
+            <div class="code-area">
+                <label>Receiver's Answer Code:</label>
+                <textarea id="answer-code" readonly onclick="this.select()"></textarea>
+                <button class="btn secondary" onclick="app.copyToClipboard('answer-code')">Copy to Clipboard</button>
+            </div>
+        </div>
+
+        <div id="receive-step-3" style="display:none;">
+            <span class="status-badge status-connected">Connection Established</span>
+            <h3>Files Received</h3>
+            <p>Awaiting files from sender...</p>
+            <ul id="received-files" class="file-list"></ul>
+            <button id="close-receive-btn" class="btn secondary" onclick="app.closeConnection()">Close Connection</button>
+        </div>
+    </div>
+
+    <footer style="margin-top: 2rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--text-light); text-align: center;">
+        <p><strong>How it works:</strong> This uses WebRTC DataChannels. Files are encrypted in transit (DTLS) and never touch a server. 
+        <br>Note: Some corporate firewalls or mobile networks may block P2P connections. Both parties must keep this page open during transfer.</p>
+    </footer>
+</div>
+    <script src="script.js"></script>
+</body>
+</html>
